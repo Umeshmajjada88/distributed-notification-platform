@@ -1,5 +1,6 @@
 package com.umesh.distributed_notification_service.domain.outbox.mapper;
 
+import com.umesh.distributed_notification_service.common.constants.KafkaTopics;
 import com.umesh.distributed_notification_service.common.serialization.JsonSerializer;
 import com.umesh.distributed_notification_service.domain.notification.event.dto.NotificationEvent;
 import com.umesh.distributed_notification_service.domain.outbox.entity.OutboxEvent;
@@ -23,6 +24,7 @@ public class OutboxMapper {
                 .aggregateType(aggregateType)
                 .aggregateId(aggregateId)
                 .eventType(eventType)
+                .topic(KafkaTopics.NOTIFICATION_CREATED) // <-- Fix
                 .payload(jsonSerializer.serialize(event))
                 .status(OutboxStatus.PENDING)
                 .retryCount(0)

@@ -16,6 +16,8 @@ public class OutboxPublisherScheduler {
     @Scheduled(fixedDelay = 5000)
     public void publishEvents() {
 
+        log.info("Scanning Outbox for pending events...");
+
         publisherService.publishPendingEvents();
 
     }

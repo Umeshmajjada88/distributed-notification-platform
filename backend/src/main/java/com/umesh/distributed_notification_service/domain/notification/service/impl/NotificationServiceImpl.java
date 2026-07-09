@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final IdGenerator idGenerator;
-    private final NotificationEventPublisher notificationEventPublisher;
+    // private final NotificationEventPublisher notificationEventPublisher;
     private final NotificationEventMapper notificationEventMapper;
 
     private final OutboxMapper outboxMapper;
@@ -120,8 +120,8 @@ public NotificationResponse createNotification(
         return NotificationStatus.PENDING;
     }
 
-    private Notification saveNotification(Notification notification) {
+    // private Notification saveNotification(Notification notification) {
 
-        return notificationRepository.save(notification);
-    }
+    //     return notificationRepository.save(notification);
+    // }
 }

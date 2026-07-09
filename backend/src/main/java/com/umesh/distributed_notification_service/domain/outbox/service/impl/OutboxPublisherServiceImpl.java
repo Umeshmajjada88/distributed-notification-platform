@@ -34,6 +34,11 @@ public class OutboxPublisherServiceImpl
 
             try {
 
+                log.info(
+                        "Publishing Outbox Event {} to topic {}",
+                        event.getId(),
+                        event.getTopic());
+
                 eventPublisher.publish(event);
 
                 event.setStatus(OutboxStatus.PUBLISHED);
@@ -41,6 +46,10 @@ public class OutboxPublisherServiceImpl
                 event.setPublishedAt(LocalDateTime.now());
 
                 outboxRepository.save(event);
+
+                log.info(
+                        "Outbox Event {} published successfully",
+                        event.getId());
 
             } catch (Exception ex) {
 

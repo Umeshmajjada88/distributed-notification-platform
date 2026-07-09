@@ -1,5 +1,7 @@
 package com.umesh.distributed_notification_service.infrastructure.kafka.publisher;
 
+import com.umesh.distributed_notification_service.common.serialization.JsonSerializer;
+import com.umesh.distributed_notification_service.domain.notification.event.dto.NotificationEvent;
 import com.umesh.distributed_notification_service.domain.outbox.entity.OutboxEvent;
 import com.umesh.distributed_notification_service.domain.outbox.publisher.OutboxEventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -11,21 +13,27 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class KafkaOutboxEventPublisher
-        implements OutboxEventPublisher {
+                implements OutboxEventPublisher {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+        private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Override
-    public void publish(OutboxEvent event) {
+        private final JsonSerializer jsonSerializer;
 
-        kafkaTemplate.send(
-                event.getTopic(),
-                event.getAggregateId(),
-                event.getPayload());
+        @Override
+        public void publish(OutboxEvent outboxEvent) {
 
-        log.info(
-                "Published Outbox Event {} to topic {}",
-                event.getId(),
-                event.getTopic());
-    }
+                NotificationEvent event = jsonSerializer.deserialize(
+                                outboxEvent.getPayload(),
+                                NotificationEvent.class);
+
+                kafkaTemplate.send(
+                                outboxEvent.getTopic(),
+                                outboxEvent.getAggregateId(),
+                                event);
+
+                log.info(
+                                "Published Outbox Event {} to topic {}",
+                                outboxEvent.getId(),
+                                outboxEvent.getTopic());
+        }
 }
