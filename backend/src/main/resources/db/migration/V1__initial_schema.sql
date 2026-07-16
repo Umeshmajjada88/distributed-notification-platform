@@ -54,25 +54,6 @@ CREATE TABLE notification_preference (
 
 );
 
-CREATE TABLE notification_delivery (
-
-    id BIGSERIAL PRIMARY KEY,
-
-    notification_id BIGINT NOT NULL,
-
-    provider VARCHAR(100),
-
-    status VARCHAR(30),
-
-    response TEXT,
-
-    sent_at TIMESTAMP,
-
-    CONSTRAINT fk_notification
-        FOREIGN KEY(notification_id)
-        REFERENCES notification(id)
-
-);
 
 CREATE INDEX idx_notification_user_id
 ON notification(user_id);
