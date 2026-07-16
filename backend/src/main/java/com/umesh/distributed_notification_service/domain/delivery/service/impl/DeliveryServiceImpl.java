@@ -69,7 +69,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             notification.setStatus(NotificationStatus.SENT);
 
-            notificationMetrics.incrementSent();
+            notificationMetrics.incrementSent(
+                            notification.getChannel());
 
         } catch (Exception ex) {
 
@@ -79,7 +80,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 ex);
 
                 delivery.setStatus(DeliveryAttemptStatus.FAILED);
-                notificationMetrics.incrementFailed();
+                notificationMetrics.incrementFailed(
+                                notification.getChannel());
                 delivery.setCompletedAt(LocalDateTime.now());
                 delivery.setErrorMessage(ex.getMessage());
 

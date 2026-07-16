@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RetryServiceImpl implements RetryService {
 
+
     private final NotificationRepository notificationRepository;
 
     private final NotificationEventMapper eventMapper;
@@ -51,7 +52,8 @@ public class RetryServiceImpl implements RetryService {
 
                 notificationRepository.save(notification);
 
-                notificationMetrics.incrementDlq();
+                notificationMetrics.incrementDlq(
+                                notification.getChannel());
 
                 NotificationEvent event = eventMapper.toEvent(notification);
 
@@ -71,7 +73,8 @@ public class RetryServiceImpl implements RetryService {
 }
 
         notification.setStatus(NotificationStatus.RETRYING);
-        notificationMetrics.incrementRetry();
+        notificationMetrics.incrementRetry(
+                        notification.getChannel());
 
         notification.setNextRetryAt(
                 retryPolicy.nextRetryTime(

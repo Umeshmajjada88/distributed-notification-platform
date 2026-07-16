@@ -65,7 +65,8 @@ public NotificationResponse createNotification(
 
     outboxService.save(outboxEvent);
 
-    notificationMetrics.incrementCreated();
+    notificationMetrics.incrementCreated(
+            savedNotification.getChannel());
 
     return notificationMapper.toResponse(savedNotification);
 }
