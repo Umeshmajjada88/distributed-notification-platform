@@ -1,10 +1,13 @@
 package com.umesh.delivery_service.domain.delivery.processor;
 
+import com.umesh.delivery_service.common.exception.ResourceNotFoundException;
 import com.umesh.delivery_service.domain.delivery.entity.Delivery;
 import com.umesh.delivery_service.domain.delivery.enums.DeliveryStatus;
 import com.umesh.delivery_service.domain.delivery.service.DeliveryService;
 import com.umesh.delivery_service.domain.provider.factory.ProviderFactory;
 import com.umesh.delivery_service.domain.provider.interfaces.NotificationProvider;
+import com.umesh.delivery_service.websocket.service.NotificationStatusService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,11 +21,20 @@ public class DeliveryProcessor {
 
     private final ProviderFactory providerFactory;
 
+    private final NotificationStatusService notificationStatusService;
+
     public void execute(Delivery delivery) {
 
         deliveryService.updateStatus(
                 delivery.getId(),
                 DeliveryStatus.IN_PROGRESS);
+
+        delivery = deliveryService.findById(delivery.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found"));
+
+        notificationStatusService.publishStatus(
+                delivery,
+                "Delivery started");
 
         try {
 
@@ -34,6 +46,13 @@ public class DeliveryProcessor {
             deliveryService.markDelivered(
                     delivery.getId(),
                     "LOCAL-DEMO-" + delivery.getId());
+
+            delivery = deliveryService.findById(delivery.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Delivery not found"));
+
+            notificationStatusService.publishStatus(
+                    delivery,
+                    "Notification delivered successfully");
 
             log.info(
                     "Delivery {} completed successfully",
@@ -49,6 +68,13 @@ public class DeliveryProcessor {
             deliveryService.markFailed(
                     delivery.getId(),
                     ex.getMessage());
+
+            delivery = deliveryService.findById(delivery.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Delivery not found"));
+
+            notificationStatusService.publishStatus(
+                    delivery,
+                    "Delivery failed: " + ex.getMessage());
 
         }
 

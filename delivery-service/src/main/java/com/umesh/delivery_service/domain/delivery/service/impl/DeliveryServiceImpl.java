@@ -1,6 +1,7 @@
 package com.umesh.delivery_service.domain.delivery.service.impl;
 
 import com.umesh.delivery_service.common.exception.DeliveryNotFoundException;
+import com.umesh.delivery_service.domain.delivery.dto.response.DeliveryStatisticsResponse;
 import com.umesh.delivery_service.domain.delivery.entity.Delivery;
 import com.umesh.delivery_service.domain.delivery.enums.DeliveryStatus;
 import com.umesh.delivery_service.domain.delivery.mapper.DeliveryMapper;
@@ -154,6 +155,20 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .findTop100ByStatusAndNextRetryAtLessThanEqualOrderByNextRetryAtAsc(
                         DeliveryStatus.RETRY_PENDING,
                         now);
+
+    }
+
+    @Override
+    public DeliveryStatisticsResponse getStatistics() {
+
+        return DeliveryStatisticsResponse.builder()
+                .total(repository.count())
+                .pending(repository.countByStatus(DeliveryStatus.PENDING))
+                .inProgress(repository.countByStatus(DeliveryStatus.IN_PROGRESS))
+                .retryPending(repository.countByStatus(DeliveryStatus.RETRY_PENDING))
+                .delivered(repository.countByStatus(DeliveryStatus.DELIVERED))
+                .failed(repository.countByStatus(DeliveryStatus.FAILED))
+                .build();
 
     }
 }

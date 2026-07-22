@@ -11,19 +11,23 @@ import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Optional<Notification> findByEventId(UUID eventId);
+        Optional<Notification> findByEventId(UUID eventId);
 
-    boolean existsByEventId(UUID eventId);
+        boolean existsByEventId(UUID eventId);
 
-    List<Notification> findByStatus(NotificationStatus status);
+        List<Notification> findByStatus(NotificationStatus status);
 
-    List<Notification> findByStatusAndScheduledAtBefore(
+        List<Notification> findByStatusAndScheduledAtBefore(
             NotificationStatus status,
             LocalDateTime scheduledAt);
 
-    List<Notification> findByStatusAndNextRetryAtLessThanEqual(
+        List<Notification> findByStatusAndNextRetryAtLessThanEqual(
             NotificationStatus status,
             LocalDateTime time);
+
+        long countByStatus(NotificationStatus status);
+
+        
 
 
 }

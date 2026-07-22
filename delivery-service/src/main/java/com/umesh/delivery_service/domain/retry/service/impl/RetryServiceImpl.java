@@ -9,6 +9,7 @@ import com.umesh.delivery_service.domain.delivery.service.DeliveryService;
 import com.umesh.delivery_service.domain.retry.backoff.ExponentialBackoff;
 import com.umesh.delivery_service.domain.retry.policy.DeliveryRetryPolicy;
 import com.umesh.delivery_service.domain.retry.service.RetryService;
+import com.umesh.delivery_service.websocket.service.NotificationStatusService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class RetryServiceImpl implements RetryService {
     private final DeliveryProcessor deliveryProcessor;
 
     private final DeadLetterService deadLetterService;
+
+    private final NotificationStatusService notificationStatusService;
 
 
 
@@ -60,6 +63,10 @@ public class RetryServiceImpl implements RetryService {
                 DeliveryStatus.RETRY_PENDING);
 
         deliveryService.save(delivery);
+
+        notificationStatusService.publishStatus(
+                delivery,
+                "Retry scheduled (Attempt " + delivery.getAttemptCount() + ")");
 
 
         log.info(

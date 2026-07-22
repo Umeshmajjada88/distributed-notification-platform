@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.umesh.distributed_notification_service.common.util.ApiResponseBuilder;
+import com.umesh.distributed_notification_service.domain.notification.dto.response.NotificationStatisticsResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -74,4 +75,12 @@ public class NotificationController {
                         "Notifications retrieved successfully.",
                         response));
     }
+
+        @GetMapping("/statistics")
+        public ResponseEntity<NotificationStatisticsResponse> getStatistics() {
+
+                return ResponseEntity.ok(
+                notificationService.getStatistics());
+
+        }
 }

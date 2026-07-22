@@ -59,6 +59,8 @@ logging:
   level:
     root: INFO
     com.umesh.distributed_notification_service: DEBUG
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
 
 springdoc:
   api-docs:
@@ -66,6 +68,8 @@ springdoc:
 
   swagger-ui:
     path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
 
 management:
   endpoints:

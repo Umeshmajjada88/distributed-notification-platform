@@ -1,5 +1,6 @@
 package com.umesh.delivery_service.domain.deadletter.service.impl;
 
+import com.umesh.delivery_service.domain.deadletter.dto.response.DeadLetterStatisticsResponse;
 import com.umesh.delivery_service.domain.deadletter.entity.DeadLetter;
 import com.umesh.delivery_service.domain.deadletter.enums.DeadLetterStatus;
 import com.umesh.delivery_service.domain.deadletter.repository.DeadLetterRepository;
@@ -8,6 +9,7 @@ import com.umesh.delivery_service.domain.delivery.entity.Delivery;
 import com.umesh.delivery_service.domain.delivery.processor.DeliveryProcessor;
 import com.umesh.delivery_service.domain.delivery.service.DeliveryService;
 import com.umesh.delivery_service.infrastructure.kafka.publisher.DeadLetterEventPublisher;
+import com.umesh.delivery_service.websocket.service.NotificationStatusService;
 import com.umesh.shared.event.NotificationDeadLetterEvent;
 
 import lombok.RequiredArgsConstructor;
@@ -21,13 +23,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DeadLetterServiceImpl implements DeadLetterService {
 
-    private final DeadLetterRepository repository;
+    private final DeadLetterRepository deadLetterRepository;
 
     private final DeadLetterEventPublisher deadLetterEventPublisher;
 
     private final DeliveryService deliveryService;
 
     private final DeliveryProcessor deliveryProcessor;
+
+    private final NotificationStatusService notificationStatusService;
 
     @Override
     public DeadLetter saveFailedDelivery(Delivery delivery) {
@@ -44,7 +48,11 @@ public class DeadLetterServiceImpl implements DeadLetterService {
                 .status(DeadLetterStatus.PENDING)
                 .build();
 
-        DeadLetter saved = repository.save(deadLetter);
+        DeadLetter saved = deadLetterRepository.save(deadLetter);
+
+        notificationStatusService.publishStatus(
+                delivery,
+                "Delivery moved to Dead Letter Queue");
 
         NotificationDeadLetterEvent event =
                 NotificationDeadLetterEvent.builder()
@@ -66,14 +74,14 @@ public class DeadLetterServiceImpl implements DeadLetterService {
     @Override
     public Optional<DeadLetter> findById(Long id) {
 
-        return repository.findById(id);
+        return deadLetterRepository.findById(id);
 
     }
 
     @Override
     public List<DeadLetter> findAll() {
 
-        return repository.findAll();
+        return deadLetterRepository.findAll();
 
     }
 
@@ -81,7 +89,7 @@ public class DeadLetterServiceImpl implements DeadLetterService {
     @Transactional
     public DeadLetter replay(Long deadLetterId) {
 
-        DeadLetter deadLetter = repository.findById(deadLetterId)
+        DeadLetter deadLetter = deadLetterRepository.findById(deadLetterId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Dead Letter not found"));
 
@@ -95,7 +103,11 @@ public class DeadLetterServiceImpl implements DeadLetterService {
         deadLetter.setStatus(
                 DeadLetterStatus.REPLAYED);
 
-        DeadLetter updated = repository.save(deadLetter);
+        DeadLetter updated = deadLetterRepository.save(deadLetter);
+
+        notificationStatusService.publishStatus(
+                delivery,
+                "Replay requested");
 
         return updated;
 
@@ -104,9 +116,21 @@ public class DeadLetterServiceImpl implements DeadLetterService {
     @Override
     public List<DeadLetter> findPending() {
 
-        return repository.findByStatus(
+        return deadLetterRepository.findByStatus(
                 DeadLetterStatus.PENDING);
 
     }
+
+    @Override
+public DeadLetterStatisticsResponse getStatistics() {
+
+    return DeadLetterStatisticsResponse.builder()
+            .total(deadLetterRepository.count())
+            .pending(deadLetterRepository.countByStatus(DeadLetterStatus.PENDING))
+            .replayed(deadLetterRepository.countByStatus(DeadLetterStatus.REPLAYED))
+            .discarded(deadLetterRepository.countByStatus(DeadLetterStatus.DISCARDED))
+            .build();
+
+}
 
 }

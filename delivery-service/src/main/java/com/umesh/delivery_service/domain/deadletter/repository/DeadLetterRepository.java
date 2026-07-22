@@ -11,5 +11,7 @@ public interface DeadLetterRepository
 
     List<DeadLetter> findByStatus(DeadLetterStatus status);
 
+    long countByStatus(DeadLetterStatus status);
+
 
 }

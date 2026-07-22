@@ -18,6 +18,7 @@ import com.umesh.distributed_notification_service.domain.outbox.service.OutboxSe
 import com.umesh.distributed_notification_service.infrastructure.metrics.NotificationMetrics;
 import com.umesh.shared.event.NotificationRequestedEvent;
 import com.umesh.shared.kafka.KafkaTopics;
+import com.umesh.distributed_notification_service.domain.notification.dto.response.NotificationStatisticsResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -128,8 +129,18 @@ public NotificationResponse createNotification(
         return NotificationStatus.PENDING;
     }
 
-    // private Notification saveNotification(Notification notification) {
+    @Override
+    public NotificationStatisticsResponse getStatistics() {
 
-    //     return notificationRepository.save(notification);
-    // }
+    return NotificationStatisticsResponse.builder()
+            .total(notificationRepository.count())
+            .pending(notificationRepository.countByStatus(NotificationStatus.PENDING))
+            .processing(notificationRepository.countByStatus(NotificationStatus.PROCESSING))
+            .retrying(notificationRepository.countByStatus(NotificationStatus.RETRYING))
+            .scheduled(notificationRepository.countByStatus(NotificationStatus.SCHEDULED))
+            .sent(notificationRepository.countByStatus(NotificationStatus.SENT))
+            .failed(notificationRepository.countByStatus(NotificationStatus.FAILED))
+            .build();
+
+}
 }

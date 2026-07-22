@@ -11,27 +11,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI notificationServiceOpenAPI() {
+        @Bean
+        public OpenAPI deliveryServiceOpenAPI() {
 
-        return new OpenAPI()
-
-                .info(
-                        new Info()
-                                .title("Distributed Notification Service API")
-                                .description("Production Grade Distributed Notification Service")
-                                .version("v1.0")
-                                .contact(
-                                        new Contact()
-                                                .name("Umesh")
-                                                .email("umesh@example.com"))
-                                .license(
-                                        new License()
-                                                .name("Apache 2.0")))
-
-                .externalDocs(
-                        new ExternalDocumentation()
-                                .description("Project Documentation")
-                                .url("https://github.com/"));
-    }
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("Delivery Service API")
+                                                .description("APIs for Delivery, Retry, Dead Letter Queue and Operations Dashboard")
+                                                .version("v1.0")
+                                                .contact(new Contact()
+                                                                .name("Umesh")
+                                                                .email("your-email@example.com"))
+                                                .license(new License()
+                                                                .name("Apache 2.0")))
+                                .externalDocs(new ExternalDocumentation()
+                                                .description("Distributed Notification Platform"));
+        }
 }

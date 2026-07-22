@@ -2,6 +2,7 @@ package com.umesh.distributed_notification_service.domain.notification.service;
 
 import com.umesh.distributed_notification_service.domain.notification.dto.request.CreateNotificationRequest;
 import com.umesh.distributed_notification_service.domain.notification.dto.response.NotificationResponse;
+import com.umesh.distributed_notification_service.domain.notification.dto.response.NotificationStatisticsResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,5 +19,7 @@ public interface NotificationService {
             UUID eventId);
 
     List<NotificationResponse> getAllNotifications();
+
+    NotificationStatisticsResponse getStatistics();
 
 }

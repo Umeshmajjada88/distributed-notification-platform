@@ -20,4 +20,6 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     List<Delivery> findTop100ByStatusAndNextRetryAtLessThanEqualOrderByNextRetryAtAsc(
         DeliveryStatus status,
         LocalDateTime time);
+
+    long countByStatus(DeliveryStatus status);
 }
