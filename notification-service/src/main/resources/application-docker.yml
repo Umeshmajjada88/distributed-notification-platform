@@ -1,0 +1,20 @@
+spring:
+
+  datasource:
+    url: ${NOTIFICATION_DB_URL}
+    username: ${NOTIFICATION_DB_USERNAME}
+    password: ${NOTIFICATION_DB_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${NOTIFICATION_KAFKA_BOOTSTRAP_SERVERS}
+
+  data:
+    redis:
+      host: ${NOTIFICATION_REDIS_HOST}
+      port: ${NOTIFICATION_REDIS_PORT}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}

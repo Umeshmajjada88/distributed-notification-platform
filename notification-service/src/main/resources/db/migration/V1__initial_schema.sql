@@ -24,21 +24,6 @@ CREATE TABLE notification (
 
 );
 
-CREATE TABLE notification_template (
-
-    id BIGSERIAL PRIMARY KEY,
-
-    template_name VARCHAR(100) NOT NULL UNIQUE,
-
-    channel VARCHAR(30) NOT NULL,
-
-    subject VARCHAR(255),
-
-    body TEXT NOT NULL,
-
-    created_at TIMESTAMP NOT NULL
-
-);
 
 CREATE TABLE notification_preference (
 

@@ -1,182 +1,144 @@
-// package com.umesh.distributed_notification_service.domain.notification.service;
+package com.umesh.distributed_notification_service.domain.notification.service;
 
-// import com.umesh.distributed_notification_service.common.util.IdGenerator;
-// import com.umesh.distributed_notification_service.domain.notification.dto.request.CreateNotificationRequest;
-// import com.umesh.distributed_notification_service.domain.notification.dto.response.NotificationResponse;
-// import com.umesh.distributed_notification_service.domain.notification.entity.Notification;
-// import com.umesh.distributed_notification_service.domain.notification.enums.NotificationChannel;
-// import com.umesh.distributed_notification_service.domain.notification.enums.NotificationStatus;
-// import com.umesh.distributed_notification_service.domain.notification.event.mapper.NotificationRequestedEventMapper;
-// import com.umesh.distributed_notification_service.domain.notification.mapper.NotificationMapper;
-// import com.umesh.distributed_notification_service.domain.notification.repository.NotificationRepository;
-// import com.umesh.distributed_notification_service.domain.notification.service.impl.NotificationServiceImpl;
-// import com.umesh.distributed_notification_service.domain.outbox.constants.AggregateType;
-// import com.umesh.distributed_notification_service.domain.outbox.constants.NotificationEventType;
-// import com.umesh.distributed_notification_service.domain.outbox.entity.OutboxEvent;
-// import com.umesh.distributed_notification_service.domain.outbox.mapper.OutboxMapper;
-// import com.umesh.distributed_notification_service.domain.outbox.service.OutboxService;
-// import com.umesh.distributed_notification_service.infrastructure.metrics.NotificationMetrics;
-// import com.umesh.shared.event.NotificationRequestedEvent;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.InOrder;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
+import com.umesh.distributed_notification_service.common.data.NotificationTestDataFactory;
+import com.umesh.distributed_notification_service.common.util.IdGenerator;
+import com.umesh.distributed_notification_service.domain.notification.dto.request.CreateNotificationRequest;
+import com.umesh.distributed_notification_service.domain.notification.dto.response.NotificationResponse;
+import com.umesh.distributed_notification_service.domain.notification.entity.Notification;
+import com.umesh.distributed_notification_service.domain.notification.enums.NotificationStatus;
+import com.umesh.distributed_notification_service.domain.notification.event.mapper.NotificationRequestedEventMapper;
+import com.umesh.distributed_notification_service.domain.notification.mapper.NotificationMapper;
+import com.umesh.distributed_notification_service.domain.notification.repository.NotificationRepository;
+import com.umesh.distributed_notification_service.domain.notification.service.impl.NotificationServiceImpl;
+import com.umesh.distributed_notification_service.domain.outbox.constants.AggregateType;
+import com.umesh.distributed_notification_service.domain.outbox.constants.NotificationEventType;
+import com.umesh.distributed_notification_service.domain.outbox.entity.OutboxEvent;
+import com.umesh.distributed_notification_service.domain.outbox.mapper.OutboxMapper;
+import com.umesh.distributed_notification_service.domain.outbox.service.OutboxService;
+import com.umesh.distributed_notification_service.infrastructure.metrics.NotificationMetrics;
+import com.umesh.shared.event.NotificationRequestedEvent;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-// import java.util.UUID;
+import java.util.UUID;
 
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-// @ExtendWith(MockitoExtension.class)
-// class NotificationServiceTest {
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-//     @Mock
-//     private NotificationRepository notificationRepository;
+@ExtendWith(MockitoExtension.class)
+class NotificationServiceTest {
 
-//     @Mock
-//     private NotificationMapper notificationMapper;
+    @Mock
+    private NotificationRepository notificationRepository;
 
-//     @Mock
-//     private IdGenerator idGenerator;
+    @Mock
+    private NotificationMapper notificationMapper;
 
-//     @Mock
-//     private NotificationRequestedEventMapper notificationRequestedEventMapper;
+    @Mock
+    private IdGenerator idGenerator;
 
-//     @Mock
-//     private OutboxMapper outboxMapper;
+    @Mock
+    private NotificationRequestedEventMapper eventMapper;
 
-//     @Mock
-//     private OutboxService outboxService;
+    @Mock
+    private OutboxMapper outboxMapper;
 
-//     @Mock
-//     private NotificationMetrics notificationMetrics;
+    @Mock
+    private OutboxService outboxService;
 
-//     @InjectMocks
-//     private NotificationServiceImpl notificationService;
+    @Mock
+    private NotificationMetrics notificationMetrics;
 
-//     private CreateNotificationRequest request;
-//     private Notification notification;
-//     private NotificationResponse response;
-//     private NotificationRequestedEvent event;
-//     private OutboxEvent outboxEvent;
+    @InjectMocks
+    private NotificationServiceImpl notificationService;
 
-//     @BeforeEach
-//     void setUp() {
+    private CreateNotificationRequest request;
 
-//         request = CreateNotificationRequest.builder()
-//                 .userId(1L)
-//                 .channel(NotificationChannel.EMAIL)
-//                 .subject("Welcome")
-//                 .message("Hello")
-//                 .build();
+    private Notification notification;
 
-//         notification = Notification.builder()
-//                 .id(1L)
-//                 .userId(1L)
-//                 .build();
+    private NotificationResponse response;
 
-//         response = NotificationResponse.builder()
-//                 .id(1L)
-//                 .build();
+    @BeforeEach
+    void setUp() {
 
-//         event = NotificationRequestedEvent.builder().build();
+        request = NotificationTestDataFactory.pendingRequest();
 
-//         outboxEvent = OutboxEvent.builder().build();
-//     }
+        notification = NotificationTestDataFactory.pendingNotification();
 
-//     @Test
-//     void shouldCreateNotificationSuccessfully() {
+        response = new NotificationMapper().toResponse(notification);
 
-//         UUID eventId = UUID.randomUUID();
+    }
 
-//         when(notificationMapper.toEntity(request))
-//                 .thenReturn(notification);
+    @Test
+    void shouldCreateNotification() {
 
-//         when(idGenerator.generateEventId())
-//                 .thenReturn(eventId);
+        UUID eventId = UUID.randomUUID();
 
-//         when(notificationRepository.save(notification))
-//                 .thenReturn(notification);
+        notification.setStatus(NotificationStatus.PENDING);
 
-//         when(notificationRequestedEventMapper.toEvent(notification))
-//                 .thenReturn(event);
+        when(notificationMapper.toEntity(request))
+                .thenReturn(notification);
 
-//         when(outboxMapper.toOutboxEvent(
-//                 AggregateType.NOTIFICATION,
-//                 "1",
-//                 NotificationEventType.NOTIFICATION_REQUESTED,
-//                 event))
-//                 .thenReturn(outboxEvent);
+        when(idGenerator.generateEventId())
+                .thenReturn(eventId);
 
-//         when(notificationMapper.toResponse(notification))
-//                 .thenReturn(response);
+        when(notificationRepository.save(any(Notification.class)))
+        .thenAnswer(invocation -> {
+            Notification saved = invocation.getArgument(0);
+            saved.setId(1L); // Simulate JPA-generated ID
+            return saved;
+        });
 
-//         // Act
-//         NotificationResponse result =
-//                 notificationService.createNotification(request);
+        NotificationRequestedEvent event =
+                mock(NotificationRequestedEvent.class);
 
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals(response, result);
+        when(eventMapper.toEvent(any(Notification.class)))
+                .thenReturn(event);
 
-//         assertEquals(NotificationStatus.PENDING,
-//                 notification.getStatus());
+        OutboxEvent outbox =
+                mock(OutboxEvent.class);
 
-//         assertEquals(0,
-//                 notification.getRetryCount());
+        when(outboxMapper.toOutboxEvent(
+                any(AggregateType.class),
+                anyString(),
+                any(NotificationEventType.class),
+                any()))
+                .thenReturn(outbox);
 
-//         assertEquals(eventId,
-//                 notification.getEventId());
+        when(outboxService.save(outbox))
+                .thenReturn(outbox);
 
-//         verify(notificationMapper)
-//                 .toEntity(request);
+        when(notificationMapper.toResponse(any(Notification.class)))
+                .thenReturn(response);
 
-//         verify(idGenerator)
-//                 .generateEventId();
+        NotificationResponse result =
+                notificationService.createNotification(request);
 
-//         verify(notificationRepository)
-//                 .save(notification);
+        assertNotNull(result);
 
-//         verify(notificationRequestedEventMapper)
-//                 .toEvent(notification);
+        verify(idGenerator).generateEventId();
 
-//         verify(outboxMapper)
-//                 .toOutboxEvent(
-//                         AggregateType.NOTIFICATION,
-//                         "1",
-//                         NotificationEventType.NOTIFICATION_REQUESTED,
-//                         event);
+        verify(notificationRepository).save(any(Notification.class));
 
-//         verify(outboxService)
-//                 .save(outboxEvent);
+        verify(eventMapper).toEvent(any(Notification.class));
 
-//         verify(notificationMetrics)
-//                 .incrementCreated(NotificationChannel.EMAIL);
+        verify(outboxMapper).toOutboxEvent(
+                any(),
+                anyString(),
+                any(),
+                any());
 
-//         verify(notificationMapper)
-//                 .toResponse(notification);
+        verify(outboxService).save(any(OutboxEvent.class));
 
-//         InOrder inOrder = inOrder(
-//                 notificationRepository,
-//                 notificationRequestedEventMapper,
-//                 outboxService);
+        verify(notificationMetrics)
+                .incrementCreated(notification.getChannel());
 
-//         inOrder.verify(notificationRepository)
-//                 .save(notification);
+    }
 
-//         inOrder.verify(notificationRequestedEventMapper)
-//                 .toEvent(notification);
-
-//         inOrder.verify(outboxService)
-//                 .save(outboxEvent);
-
-//         verifyNoMoreInteractions(
-//                 notificationRepository,
-//                 notificationRequestedEventMapper,
-//                 outboxService,
-//                 notificationMetrics);
-//     }
-// }
+}

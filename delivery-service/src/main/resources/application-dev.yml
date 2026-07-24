@@ -58,7 +58,7 @@ spring:
 logging:
   level:
     root: INFO
-    com.umesh.distributed_notification_service: DEBUG
+    com.umesh.delivery_service: DEBUG
     org.springframework.web.socket: DEBUG
     org.springframework.messaging: DEBUG
 

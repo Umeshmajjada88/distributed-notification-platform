@@ -1,0 +1,32 @@
+spring:
+
+  datasource:
+    url: ${DELIVERY_DB_URL}
+    username: ${DELIVERY_DB_USERNAME}
+    password: ${DELIVERY_DB_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${DELIVERY_KAFKA_BOOTSTRAP_SERVERS}
+
+  data:
+    redis:
+      host: ${DELIVERY_REDIS_HOST}
+      port: ${DELIVERY_REDIS_PORT}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+  notification:
+
+    retry:
+        max-attempts: 3
+        retry-delay-ms: 5000
+
+    email:
+        default-recipient: ${DEFAULT_EMAIL_RECIPIENT}
+
+    sms:
+        default-recipient: ${DEFAULT_SMS_RECIPIENT}
